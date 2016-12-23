@@ -71,6 +71,12 @@ To configure OpenSSH server to fetch users’ authorized keys from LDAP server:
 
 4. Restart sshd.
 
+# Note for users of pam_mount+cifs
+
+If you're putting ssh keys in ldap to get around not having a home directory until after login, you'll likely be disappointed.  `AuthorizedKeysCommand` will get users successfully logged in but then pam_mount will not prompt for the password it needs to mount the user's home directory, leaving the logged-in user 'homeless.'  Further investigation may yield a workaround, but the best result that can be reasonable anticipated just returns to the user getting prompted for a password anyway.  Unless you can switch to a passwordless system for mounting home directories (i.e. NFS\*), don't bother getting authorized keys into ldap.
+
+\* Not recommended in mixed Windows/Linux networks - sharing the same directory via NFS for Linux clients and CIFS for Windows will not likely end happily.
+
 # Similar Projects
 
  - [ssh-ldap-pubkey](https://github.com/jirutka/ssh-ldap-pubkey): More robust system for managing ssh keys in ldap, but using Python.

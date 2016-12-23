@@ -17,7 +17,7 @@ die "No such user $uid\n" if system("getent passwd $uid > /dev/null");
 my %conf = Config::General->new('/etc/ldap.conf')->getall();
 
 my $ldap = Net::LDAP->new(
-    $conf{uri} || 'localhost',
+    $conf{uri} || 'ldap://localhost',
     port => $conf{port} || 389,
     onerror => 'die'
 );

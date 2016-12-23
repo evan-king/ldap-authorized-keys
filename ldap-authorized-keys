@@ -8,11 +8,11 @@ use Net::LDAP;
 
 my $name = basename($0);
 my $PATH = '/etc/ldap.conf';
-my $uid = $ARGV[0];
+my $user = $ARGV[0];
 
 die "Missing config file $PATH\n" unless -e $PATH;
-die "Usage: $name user\n" unless $uid;
-die "No such user $uid\n" if system("getent passwd $uid > /dev/null");
+die "Usage: $name user\n" unless $user;
+die "No such user $user\n" if system("getent passwd $user > /dev/null");
 
 my %conf = Config::General->new('/etc/ldap.conf')->getall();
 
@@ -21,12 +21,20 @@ my $ldap = Net::LDAP->new(
     port => $conf{port} || 389,
     onerror => 'die'
 );
-$ldap->start_tls if $conf{ssl} eq 'start_tls';
+$ldap->start_tls(
+    verify => $conf{tls_checkpeer} eq 'yes' ? 'require' : 'optional',
+    cafile => $conf{tls_cacertfile},
+    capath => $conf{tls_cacertdir},
+) if $conf{ssl} eq 'start_tls';
 $ldap->bind();
+
+my $filter = $conf{pam_filter} || '(objectClass=PosixAccount)';
+my $loginAttr = $conf{pam_login_attribute} || 'uid';
+
 my $result = $ldap->search(
     base => $conf{base},
     scope => $conf{scope} || 'sub',
-    filter => "(&(objectClass=posixAccount)(uid=$uid))",
+    filter => "(&$filter($loginAttr=$user))",
     attrs => ['sshPublicKey']
 );
 exit unless $result->count;

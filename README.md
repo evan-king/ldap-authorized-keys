@@ -60,7 +60,9 @@ Add [openssh-lpk.schema](openssh-lpk.schema) to your LDAP server's config.
 
 To configure OpenSSH server to fetch users’ authorized keys from LDAP server:
 
-1. Install perl module dependencies with `cpanm -S Config::General Net::LDAP`
+1. Install perl module dependencies:
+   - With apt (Ubuntu): `apt install libconfig-general-perl` (`libnet-ldap-perl` should already be installed)
+   - with cpan (Any): `cpanm -S Config::General Net::LDAP`
 2. Copy the script ldap-authorized-keys to `/usr/local/bin` (ensure owner `root` and mode `0755`)
 3. Add these two lines to /etc/ssh/sshd_config:
 
